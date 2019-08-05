@@ -1,5 +1,7 @@
 import argparse
+import subprocess
 import sys
+import os
 
 
 class Pips:
@@ -21,6 +23,40 @@ class Pips:
         # prefixing the argument with -- means it's optional
         parser.add_argument('package')
         if sys.argv[2:]:
+            args = parser.parse_args(sys.argv[2:])
+            print('Running pips install, package=%s' % args.package)
+
+            # 1. install requirement
+            process = subprocess.Popen("pip install " + args.package, shell=True,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+
+            # wait for the process to terminate
+            out, err = process.communicate()
+            errcode = process.returncode
+            for line in out:
+                print(line)
+            # 2. add requirement to requirements.txt
+            if not os.path.isfile("requirements.txt"):
+                f = open("requirements.txt", "w+")
+                f.close()
+            with open("requirements.txt", "w") as f:
+                f.writelines(args.package)
+            process = subprocess.Popen("pip freeze > requirements.lock ", shell=True,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            # wait for the process to terminate
+            out, err = process.communicate()
+            errcode = process.returncode
+            for line in out:
+                print(line)
+
+    def uninstall(self):
+        parser = argparse.ArgumentParser()
+        # prefixing the argument with -- means it's optional
+        parser.add_argument('package')
+        if sys.argv[2:]:
+            1# get dependencies from pipdeptree
             args = parser.parse_args(sys.argv[2:])
             print('Running pips install, package=%s' % args.package)
 
