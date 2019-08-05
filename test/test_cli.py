@@ -18,8 +18,21 @@ class MyTestCase(unittest.TestCase):
             Pips()
 
         self.assertTrue(os.path.exists("../venv37/Lib/site-packages/flask"))
+        # TODO: check if flask is in the files
         self.assertTrue(os.path.exists("requirements.txt"))
         self.assertTrue(os.path.exists("requirements.lock"))
+
+    def test_uninstall_package(self):
+        test_args = ["pips", "install", "flask"]
+        with patch.object(sys, 'argv', test_args):
+            Pips()
+
+        test_args = ["pips", "uninstall", "flask"]
+        with patch.object(sys, 'argv', test_args):
+            Pips()
+
+        self.assertFalse(os.path.exists("../venv37/Lib/site-packages/flask"))
+
 
     def tearDown(self) -> None:
         process = subprocess.Popen("pip uninstall --yes flask", shell=True,
@@ -30,8 +43,8 @@ class MyTestCase(unittest.TestCase):
         out, err = process.communicate()
         errcode = process.returncode
         print(out)
-        os.remove("requirements.txt")
-        os.remove("requirements.lock")
+        #os.remove("requirements.txt")
+        #os.remove("requirements.lock")
 
 
 if __name__ == '__main__':
