@@ -12,13 +12,12 @@ class MyTestCase(unittest.TestCase):
         with patch.object(sys, 'argv', test_args):
             Pips()
 
-
     def test_install_package(self):
         test_args = ["pips", "install", "flask"]
         with patch.object(sys, 'argv', test_args):
             Pips()
 
-        self.assertTrue(os.path.exists("venv37/Lib/site-packages/flask"))
+        self.assertTrue(os.path.exists("../venv37/Lib/site-packages/flask"))
         self.assertTrue(os.path.exists("requirements.txt"))
         self.assertTrue(os.path.exists("requirements.lock"))
 
@@ -31,6 +30,8 @@ class MyTestCase(unittest.TestCase):
         out, err = process.communicate()
         errcode = process.returncode
         print(out)
+        os.remove("requirements.txt")
+        os.remove("requirements.lock")
 
 
 if __name__ == '__main__':

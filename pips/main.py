@@ -34,8 +34,7 @@ class Pips:
             # wait for the process to terminate
             out, err = process.communicate()
             errcode = process.returncode
-            for line in out:
-                print(line)
+            print(out)
             # 2. add requirement to requirements.txt
             if not os.path.isfile("requirements.txt"):
                 f = open("requirements.txt", "w+")
@@ -48,8 +47,7 @@ class Pips:
             # wait for the process to terminate
             out, err = process.communicate()
             errcode = process.returncode
-            for line in out:
-                print(line)
+            print(out)
 
     def uninstall(self):
         parser = argparse.ArgumentParser()
