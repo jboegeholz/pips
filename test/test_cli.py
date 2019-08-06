@@ -13,14 +13,22 @@ class MyTestCase(unittest.TestCase):
             Pips()
 
     def test_install_package(self):
-        test_args = ["pips", "install", "flask"]
+        package = "flask"
+        test_args = ["pips", "install", package]
         with patch.object(sys, 'argv', test_args):
             Pips()
 
-        self.assertTrue(os.path.exists("../venv37/Lib/site-packages/flask"))
+        self.assertTrue(os.path.exists("../venv37/Lib/site-packages/" + package))
         # TODO: check if flask is in the files
         self.assertTrue(os.path.exists("requirements.txt"))
+        with open("requirements.txt", "r") as f:
+            lines = f.readlines()
+            self.assertTrue(package in lines)
         self.assertTrue(os.path.exists("requirements.lock"))
+        with open("requirements.lock", "r") as f:
+            lines = f.readlines()
+            self.assertTrue(package in lines)
+
 
     def test_uninstall_package(self):
         test_args = ["pips", "install", "flask"]
