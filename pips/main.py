@@ -2,19 +2,10 @@ import argparse
 import subprocess
 import sys
 import os
+from pip._internal import main as pipmain
 import pipdeptree
 
-import pip
 
-def install(package):
-    if hasattr(pip, 'main'):
-        pip.main(['install', package])
-    else:
-        pip._internal.main(['install', package])
-
-# Example
-if __name__ == '__main__':
-    install('argh')
 
 class Pips:
     def __init__(self):
@@ -38,15 +29,7 @@ class Pips:
             args = parser.parse_args(sys.argv[2:])
             print('Running pips install, package=%s' % args.package)
 
-            # 1. install requirement
-            process = subprocess.Popen("pip install " + args.package, shell=True,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-
-            # wait for the process to terminate
-            out, err = process.communicate()
-            errcode = process.returncode
-            print(out)
+            pipmain(['install', args.package])
             # 2. add requirement to requirements.txt
             if not os.path.isfile("requirements.txt"):
                 f = open("requirements.txt", "w+")
@@ -66,9 +49,11 @@ class Pips:
         # prefixing the argument with -- means it's optional
         parser.add_argument('package')
         if sys.argv[2:]:
-            1# get dependencies from pipdeptree
+            # 1 get dependencies from pipdeptree
             args = parser.parse_args(sys.argv[2:])
             print('Running pips install, package=%s' % args.package)
+            # 2 run pip uninstall for every package in req
+            pipmain(['uninstall', "--yes", args.package])
 
 
 if __name__ == '__main__':
