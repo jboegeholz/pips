@@ -31,6 +31,7 @@ class Pips:
             pipmain(['install', package])
             self.add_requirements_to_req_txt_file(package)
             self.lock_dependencies()
+        # TODO: install all
 
     def create_subparser(self):
         parser = argparse.ArgumentParser()

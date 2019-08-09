@@ -66,8 +66,8 @@ class MyTestCase(unittest.TestCase):
         out, err = process.communicate()
         errcode = process.returncode
         print(out)
-        #os.remove("requirements.txt")
-        #os.remove("requirements.lock")
+        os.remove("requirements.txt")
+        os.remove("requirements.lock")
 
 
 if __name__ == '__main__':
