@@ -1,9 +1,10 @@
 import argparse
-import subprocess
-import sys
 import os
-from pip._internal import main as pipmain
+import sys
+from unittest.mock import patch
+
 import pipdeptree
+from pip._internal import main as pipmain
 from pip._internal.utils.misc import get_installed_distributions
 
 
@@ -22,8 +23,7 @@ class Pips:
         getattr(self, args.command)()
 
     def install(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('package')
+        parser = self.create_subparser()
         if sys.argv[2:]:
             args = parser.parse_args(sys.argv[2:])
             print('Running pips install, package=%s' % args.package)
@@ -32,30 +32,55 @@ class Pips:
             self.add_requirements_to_req_txt_file(package)
             self.lock_dependencies()
 
+    def create_subparser(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('package')
+        return parser
+
     def lock_dependencies(self):
         with open("requirements.lock", "w") as f:
             for dist in get_installed_distributions():
                 req = dist.as_requirement()
                 f.write(str(req) + "\n")
 
+
     def add_requirements_to_req_txt_file(self, package):
-        # 2. add requirement to requirements.txt
         if not os.path.isfile("requirements.txt"):
             f = open("requirements.txt", "w+")
             f.close()
         with open("requirements.txt", "w") as f:
             f.writelines(package)
 
+
+    def get_package_dependencies(self, package_name):
+        test_args = ["pipdeptree", "--package", package_name]
+        with patch.object(sys, 'argv', test_args):
+            args = pipdeptree._get_args()
+            pkgs = get_installed_distributions(local_only=args.local_only,
+                                               user_only=args.user_only)
+
+            dist_index = pipdeptree.build_dist_index(pkgs)
+            tree = pipdeptree.construct_tree(dist_index)
+            dep_names = []
+            for entry in tree:
+                if entry.key == package_name:
+                    dependencies = tree[entry]
+                    for dep in dependencies:
+                        dep_names.append(dep.key)
+                    print(dep_names)
+        return dep_names
+
     def uninstall(self):
-        parser = argparse.ArgumentParser()
-        # prefixing the argument with -- means it's optional
-        parser.add_argument('package')
+        parser = self.create_subparser()
         if sys.argv[2:]:
-            # 1 get dependencies from pipdeptree
             args = parser.parse_args(sys.argv[2:])
-            print('Running pips install, package=%s' % args.package)
-            # 2 run pip uninstall for every package in req
-            pipmain(['uninstall', "--yes", args.package])
+            package = args.package
+            print('Running pips install, package=%s' % package)
+            deps = self.get_package_dependencies(package)
+            for dep in deps:
+                pipmain(['uninstall', "--yes", dep])
+            pipmain(['uninstall', "--yes", package])
+            # remove_requirements_from_req_txt_file(package)
 
 
 if __name__ == '__main__':
