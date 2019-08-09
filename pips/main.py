@@ -63,7 +63,7 @@ class Pips:
             tree = pipdeptree.construct_tree(dist_index)
             dep_names = []
             for entry in tree:
-                if entry.key == package_name:
+                if entry.key == package_name.lower():
                     dependencies = tree[entry]
                     for dep in dependencies:
                         dep_names.append(dep.key)

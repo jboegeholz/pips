@@ -13,34 +13,49 @@ class MyTestCase(unittest.TestCase):
             Pips()
 
     def test_install_package(self):
-        package = "flask"
+        package = "Jinja2"
+        sub_dependency = "MarkupSafe"
         test_args = ["pips", "install", package]
         with patch.object(sys, 'argv', test_args):
             Pips()
 
-        self.assertTrue(os.path.exists("../venv37/Lib/site-packages/" + package))
-        # TODO: check if flask is in the files
+        self.assertTrue(os.path.exists("../venv37/Lib/site-packages/" + package.lower()))
         self.assertTrue(os.path.exists("requirements.txt"))
+        self.assertTrue(os.path.exists("requirements.lock"))
+
         with open("requirements.txt", "r") as f:
             lines = f.readlines()
-            self.assertTrue(package in lines)
-        self.assertTrue(os.path.exists("requirements.lock"))
+            package_found = False
+            for line in lines:
+                if package in line:
+                    package_found = True
+            self.assertTrue(package_found)
+
         with open("requirements.lock", "r") as f:
             lines = f.readlines()
-            self.assertTrue(package in lines)
-
+            package_found = False
+            sub_dep_found = False
+            for line in lines:
+                if package in line:
+                    package_found = True
+                if sub_dependency in line:
+                    sub_dep_found = True
+            self.assertTrue(package_found)
+            self.assertTrue(sub_dep_found)
 
     def test_uninstall_package(self):
-        test_args = ["pips", "install", "flask"]
+        package = "Jinja2"
+        sub_dependency = "MarkupSafe"
+        test_args = ["pips", "install", package]
         with patch.object(sys, 'argv', test_args):
             Pips()
 
-        test_args = ["pips", "uninstall", "flask"]
+        test_args = ["pips", "uninstall", package]
         with patch.object(sys, 'argv', test_args):
             Pips()
 
-        self.assertFalse(os.path.exists("../venv37/Lib/site-packages/flask"))
-
+        self.assertFalse(os.path.exists("../venv37/Lib/site-packages/" + package.lower()))
+        self.assertFalse(os.path.exists("../venv37/Lib/site-packages/" + sub_dependency.lower()))
 
     def tearDown(self) -> None:
         process = subprocess.Popen("pip uninstall --yes flask", shell=True,
