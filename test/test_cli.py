@@ -2,7 +2,7 @@ import subprocess
 import sys
 import os
 import unittest
-from pips.main import Pips
+from pips.pips import Pips
 from unittest.mock import patch
 
 

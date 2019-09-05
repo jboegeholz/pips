@@ -84,5 +84,3 @@ class Pips:
             # remove_requirements_from_req_txt_file(package)
 
 
-if __name__ == '__main__':
-    Pips()
