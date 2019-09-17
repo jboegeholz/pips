@@ -25,13 +25,18 @@ class Pips:
     def install(self):
         parser = self.create_subparser()
         if sys.argv[2:]:
+
             args = parser.parse_args(sys.argv[2:])
             print('Running pips install, package=%s' % args.package)
             package = args.package
             pipmain(['install', package])
             self.add_requirements_to_req_txt_file(package)
             self.lock_dependencies()
-        # TODO: install all
+        else:
+            print('Running pips install')
+            pipmain(['install', '-r', 'requirements.txt'])
+            self.lock_dependencies()
+
 
     def create_subparser(self):
         parser = argparse.ArgumentParser()
@@ -43,7 +48,6 @@ class Pips:
             for dist in get_installed_distributions():
                 req = dist.as_requirement()
                 f.write(str(req) + "\n")
-
 
     def add_requirements_to_req_txt_file(self, package):
         if not os.path.isfile("requirements.txt"):

@@ -6,13 +6,22 @@ from pips.pips import Pips
 from unittest.mock import patch
 
 
-class MyTestCase(unittest.TestCase):
+class PipsTest(unittest.TestCase):
     def test_install(self):
+        """Tests if all packages from the requirements.txt are installed"""
+
+        if not os.path.isfile("requirements.txt"):
+            f = open("requirements.txt", "w+")
+            f.close()
+        with open("requirements.txt", "w") as f:
+            f.writelines("jinja2")
         test_args = ["pips", "install"]
         with patch.object(sys, 'argv', test_args):
             Pips()
 
     def test_install_package(self):
+        """Tests if a single package can be installed and locked"""
+
         package = "Jinja2"
         sub_dependency = "MarkupSafe"
         test_args = ["pips", "install", package]
