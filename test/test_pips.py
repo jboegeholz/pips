@@ -53,6 +53,7 @@ class PipsTest(unittest.TestCase):
             self.assertTrue(sub_dep_found)
 
     def test_uninstall_package(self):
+        """Tests if a single package can be uninstalled"""
         package = "Jinja2"
         sub_dependency = "MarkupSafe"
         test_args = ["pips", "install", package]

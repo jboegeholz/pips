@@ -34,8 +34,16 @@ class Pips:
             self.lock_dependencies()
         else:
             print('Running pips install')
-            pipmain(['install', '-r', 'requirements.txt'])
-            self.lock_dependencies()
+            # install requirements from requirements.lock
+            if os.path.isfile("requirements.lock"):
+                pipmain(['install', '-r', 'requirements.lock'])
+            elif os.path.isfile("requirements.txt"):
+                pipmain(['install', '-r', 'requirements.lock'])
+                self.lock_dependencies()
+            else:
+                print('No requirements files found')
+                parser.print_help()
+                exit(1)
 
 
     def create_subparser(self):
