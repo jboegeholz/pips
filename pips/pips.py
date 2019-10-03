@@ -38,7 +38,7 @@ class Pips:
             if os.path.isfile("requirements.lock"):
                 pipmain(['install', '-r', 'requirements.lock'])
             elif os.path.isfile("requirements.txt"):
-                pipmain(['install', '-r', 'requirements.lock'])
+                pipmain(['install', '-r', 'requirements.txt'])
                 self.lock_dependencies()
             else:
                 print('No requirements files found')
