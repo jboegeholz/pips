@@ -11,7 +11,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 #     for
 #     requirements = f.read()
 
-setup(name='pips',
+setup(name='pipu',
       version='0.1',
       description='pip wrapper for new requirements handling',
       long_description=long_description,
@@ -20,10 +20,10 @@ setup(name='pips',
       author='Joern Boegeholz',
       author_email='boegeholz.joern@gmail.com',
       license='MIT',
-      packages=['pips'],
+      packages=['pipu'],
       entry_points={
           "console_scripts": [
-              "pips=pips:main",
+              "pipu=pipu:main",
           ],
       },
       install_requires=[

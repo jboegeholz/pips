@@ -2,11 +2,11 @@ import subprocess
 import sys
 import os
 import unittest
-from pips.pips import Pips
+from pipu.pipu import Pipu
 from unittest.mock import patch
 
 
-class PipsTest(unittest.TestCase):
+class PipuTest(unittest.TestCase):
     def setUp(self) -> None:
         #self.path_to_site_packages = "../venv36/Lib/site-packages/"
         # on MacOS
@@ -23,10 +23,10 @@ class PipsTest(unittest.TestCase):
             f.close()
         with open(self.requirements_file, "w") as f:
             f.writelines(self.package)
-        test_args = ["pips", "install"]
+        test_args = ["pipu", "install"]
 
         with patch.object(sys, 'argv', test_args):
-            Pips()
+            Pipu()
 
         self.assertTrue(os.path.exists(self.path_to_site_packages + self.package.lower()))
         self.assertTrue(os.path.exists(self.requirements_file))
@@ -35,9 +35,9 @@ class PipsTest(unittest.TestCase):
     def test_install_package(self):
         """Tests if a single package can be installed and locked"""
 
-        test_args = ["pips", "install", self.package]
+        test_args = ["pipu", "install", self.package]
         with patch.object(sys, 'argv', test_args):
-            Pips()
+            Pipu()
 
         self.assertTrue(os.path.exists(self.path_to_site_packages + self.package.lower()))
         self.assertTrue(os.path.exists(self.requirements_file))
@@ -66,13 +66,13 @@ class PipsTest(unittest.TestCase):
     def test_uninstall_package(self):
         """Tests if a single package can be uninstalled"""
 
-        test_args = ["pips", "install", self.package]
+        test_args = ["pipu", "install", self.package]
         with patch.object(sys, 'argv', test_args):
-            Pips()
+            Pipu()
 
-        test_args = ["pips", "uninstall", self.package]
+        test_args = ["pipu", "uninstall", self.package]
         with patch.object(sys, 'argv', test_args):
-            Pips()
+            Pipu()
 
         self.assertFalse(os.path.exists(self.path_to_site_packages + self.package.lower()))
         self.assertFalse(os.path.exists(self.path_to_site_packages + self.sub_dependency.lower()))
