@@ -8,10 +8,10 @@ from pip._internal import main as pipmain
 from pip._internal.utils.misc import get_installed_distributions
 
 
-class Pipu:
+class Pips:
     def __init__(self):
         parser = argparse.ArgumentParser(
-            usage='''pipu <command> [<args>]
+            usage='''pips <command> [<args>]
         ''')
         parser.add_argument('command', help='Subcommand to run')
         args = parser.parse_args(sys.argv[1:2])
@@ -27,13 +27,13 @@ class Pipu:
         if sys.argv[2:]:
 
             args = parser.parse_args(sys.argv[2:])
-            print('Running pipu install, package=%s' % args.package)
+            print('Running pips install, package=%s' % args.package)
             package = args.package
             pipmain(['install', package])
             self.add_requirements_to_req_txt_file(package)
             self.lock_dependencies()
         else:
-            print('Running pipu install')
+            print('Running pips install')
             # install requirements from requirements.lock
             if os.path.isfile("requirements.lock"):
                 pipmain(['install', '-r', 'requirements.lock'])
@@ -88,7 +88,7 @@ class Pipu:
         if sys.argv[2:]:
             args = parser.parse_args(sys.argv[2:])
             package = args.package
-            print('Running pipu install, package=%s' % package)
+            print('Running pips install, package=%s' % package)
             deps = self.get_package_dependencies(package)
             for dep in deps:
                 pipmain(['uninstall', "--yes", dep])
