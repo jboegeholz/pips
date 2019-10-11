@@ -25,53 +25,60 @@ class Pips:
     def install(self):
         parser = self.create_subparser()
         if sys.argv[2:]:
+            self._install_package(parser)
+        else:
+            self._install_all(parser)
 
-            args = parser.parse_args(sys.argv[2:])
-            print('Running pips install, package=%s' % args.package)
-            package = args.package
-            pipmain(['install', package])
-            self.add_requirements_to_req_txt_file(package)
+    def _install_package(self, parser):
+        args = parser.parse_args(sys.argv[2:])
+        print('Running pips install, package=%s' % args.package)
+        package = args.package
+        pipmain(['install', package])
+        self.add_requirements_to_req_txt_file(package)
+        self.lock_dependencies()
+
+    def _install_all(self, parser):
+        print('Running pips install')
+        # install requirements from requirements.lock
+        if os.path.isfile("requirements.lock"):
+            pipmain(['install', '-r', 'requirements.lock'])
+        elif os.path.isfile("requirements.txt"):
+            pipmain(['install', '-r', 'requirements.txt'])
             self.lock_dependencies()
         else:
-            print('Running pips install')
-            # install requirements from requirements.lock
-            if os.path.isfile("requirements.lock"):
-                pipmain(['install', '-r', 'requirements.lock'])
-            elif os.path.isfile("requirements.txt"):
-                pipmain(['install', '-r', 'requirements.txt'])
-                self.lock_dependencies()
-            else:
-                print('No requirements files found')
-                parser.print_help()
-                exit(1)
+            print('No requirements files found')
+            parser.print_help()
+            exit(1)
 
-
-    def create_subparser(self):
+    @staticmethod
+    def create_subparser():
         parser = argparse.ArgumentParser()
         parser.add_argument('package')
         return parser
 
-    def lock_dependencies(self):
+    @staticmethod
+    def lock_dependencies():
         with open("requirements.lock", "w") as f:
             for dist in get_installed_distributions():
                 req = dist.as_requirement()
                 f.write(str(req) + "\n")
 
-    def add_requirements_to_req_txt_file(self, package):
+    @staticmethod
+    def add_requirements_to_req_txt_file(package):
         if not os.path.isfile("requirements.txt"):
             f = open("requirements.txt", "w+")
             f.close()
         with open("requirements.txt", "a") as f:
             f.writelines(package + "\n")
 
-    def get_package_dependencies(self, package_name):
+    @staticmethod
+    def get_package_dependencies(package_name):
         test_args = ["pipdeptree", "--package", package_name]
         with patch.object(sys, 'argv', test_args):
             args = pipdeptree._get_args()
-            pkgs = get_installed_distributions(local_only=args.local_only,
-                                               user_only=args.user_only)
-
-            dist_index = pipdeptree.build_dist_index(pkgs)
+            packages = get_installed_distributions(local_only=args.local_only,
+                                                   user_only=args.user_only)
+            dist_index = pipdeptree.build_dist_index(packages)
             tree = pipdeptree.construct_tree(dist_index)
             dep_names = []
             for entry in tree:
@@ -93,5 +100,3 @@ class Pips:
                 pipmain(['uninstall', "--yes", dep])
             pipmain(['uninstall', "--yes", package])
             # remove_requirements_from_req_txt_file(package)
-
-
