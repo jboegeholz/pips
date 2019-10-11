@@ -61,9 +61,8 @@ class Pips:
         if not os.path.isfile("requirements.txt"):
             f = open("requirements.txt", "w+")
             f.close()
-        with open("requirements.txt", "w") as f:
-            f.writelines(package)
-
+        with open("requirements.txt", "a") as f:
+            f.writelines(package + "\n")
 
     def get_package_dependencies(self, package_name):
         test_args = ["pipdeptree", "--package", package_name]
