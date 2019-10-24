@@ -4,3 +4,4 @@ setuptools
 wheel
 twine
 pytest
+flake8-bugbear
