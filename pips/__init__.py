@@ -1,7 +1,5 @@
-from pips.pips import *
+from pips.pips import Pips
 
 
 def main():
     Pips()
-
-

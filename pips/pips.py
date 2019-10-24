@@ -7,6 +7,9 @@ import pipdeptree
 from pip._internal import main as pipmain
 from pip._internal.utils.misc import get_installed_distributions
 
+lock_file = "requirements.lock"
+requirements_file = "requirements.txt"
+
 
 class Pips:
     def __init__(self):
@@ -40,10 +43,10 @@ class Pips:
     def _install_all(self, parser):
         print('Running pips install')
         # install requirements from requirements.lock
-        if os.path.isfile("requirements.lock"):
-            pipmain(['install', '-r', 'requirements.lock'])
+        if os.path.isfile(lock_file):
+            pipmain(['install', '-r', lock_file])
         elif os.path.isfile("requirements.txt"):
-            pipmain(['install', '-r', 'requirements.txt'])
+            pipmain(['install', '-r', requirements_file])
             self.lock_dependencies()
         else:
             print('No requirements files found')
@@ -58,17 +61,18 @@ class Pips:
 
     @staticmethod
     def lock_dependencies():
-        with open("requirements.lock", "w") as f:
-            for dist in get_installed_distributions():
+        with open(lock_file, "w") as f:
+            installed_dependencies = get_installed_distributions()
+            for dist in installed_dependencies:
                 req = dist.as_requirement()
                 f.write(str(req) + "\n")
 
     @staticmethod
     def add_requirements_to_req_txt_file(package):
-        if not os.path.isfile("requirements.txt"):
-            f = open("requirements.txt", "w+")
+        if not os.path.isfile(requirements_file):
+            f = open(requirements_file, "w+")
             f.close()
-        with open("requirements.txt", "a") as f:
+        with open(requirements_file, "a") as f:
             f.writelines(package + "\n")
 
     @staticmethod
@@ -96,6 +100,7 @@ class Pips:
             package = args.package
             print('Running pips install, package=%s' % package)
             deps = self.get_package_dependencies(package)
+            # check if dependencies are subdepencies of other packages
             for dep in deps:
                 pipmain(['uninstall', "--yes", dep])
             pipmain(['uninstall', "--yes", package])

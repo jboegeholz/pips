@@ -12,15 +12,16 @@ class PipsTest(unittest.TestCase):
         # site.getsitepackages()
         # /home/travis/virtualenv/python3.6.3/lib/python3.6/site-packages
         # on Windows use glob?
-        python_version = str(sys.version_info.major) + '.' + str(sys.version_info.minor)
+        python_version = str(sys.version_info.major)  + str(sys.version_info.minor)
         if sys.platform == 'darwin':
             self.path_to_site_packages = os.path.join("../venv36/lib", python_version, "site-packages")
-        elif sys.platform == 'windows':
-            self.path_to_site_packages = "../venv36/Lib/site-packages/"
+        elif sys.platform == 'win32':
+            self.path_to_site_packages = "../venv" + python_version + "/Lib/site-packages/"
         self.package = "Jinja2"
         self.second_package = "werkzeug"
         self.sub_dependency = "MarkupSafe"
         self.requirements_file = "requirements.txt"
+        self.lock_file = "requirements.lock"
 
     def test_install(self):
         """Tests if all packages from the requirements.txt are installed"""
@@ -50,25 +51,14 @@ class PipsTest(unittest.TestCase):
         self.assertTrue(os.path.exists(self.requirements_file))
         self.assertTrue(os.path.exists("requirements.lock"))
 
-        with open("requirements.txt", "r") as f:
-            lines = f.readlines()
-            package_found = False
-            for line in lines:
-                if self.package in line:
-                    package_found = True
-            self.assertTrue(package_found)
+        package_found = self.is_package_in_file(self.requirements_file, self.package)
+        self.assertTrue(package_found)
 
-        with open("requirements.lock", "r") as f:
-            lines = f.readlines()
-            package_found = False
-            sub_dep_found = False
-            for line in lines:
-                if self.package in line:
-                    package_found = True
-                if self.sub_dependency in line:
-                    sub_dep_found = True
-            self.assertTrue(package_found)
-            self.assertTrue(sub_dep_found)
+        package_found_in_lock = self.is_package_in_file(self.lock_file, self.package)
+        self.assertTrue(package_found_in_lock)
+
+        sub_deb_found_in_lock = self.is_package_in_file(self.lock_file, self.sub_dependency)
+        self.assertTrue(sub_deb_found_in_lock)
 
     def test_install_two_packages(self):
         """Tests if a second package can be installed and is present in the requirements.txt"""
@@ -86,7 +76,8 @@ class PipsTest(unittest.TestCase):
 
     def test_uninstall_package(self):
         """Tests if a single package can be uninstalled"""
-
+        # install markupsafe and flask
+        #
         test_args = ["pips", "install", self.package]
         with patch.object(sys, 'argv', test_args):
             Pips()
