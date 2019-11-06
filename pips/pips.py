@@ -93,15 +93,25 @@ class Pips:
                     print(dep_names)
         return dep_names
 
+    def is_package_in_file(self, file_name, package_name):
+        package_found = False
+        with open(file_name, "r") as f:
+            lines = f.readlines()
+            for line in lines:
+                if package_name in line:
+                    package_found = True
+        return package_found
+
     def uninstall(self):
         parser = self.create_subparser()
         if sys.argv[2:]:
             args = parser.parse_args(sys.argv[2:])
             package = args.package
-            print('Running pips install, package=%s' % package)
+            print('Running pips uninstall, package=%s' % package)
             deps = self.get_package_dependencies(package)
-            # check if dependencies are subdepencies of other packages
             for dep in deps:
-                pipmain(['uninstall', "--yes", dep])
+                dep_count = deps.count(dep)
+                if not self.is_package_in_file(file_name=requirements_file, package_name=dep) and dep_count < 2:
+                    pipmain(['uninstall', "--yes", dep])
             pipmain(['uninstall', "--yes", package])
             # remove_requirements_from_req_txt_file(package)

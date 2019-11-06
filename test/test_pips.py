@@ -76,6 +76,20 @@ class PipsTest(unittest.TestCase):
 
     def test_uninstall_package(self):
         """Tests if a single package can be uninstalled"""
+
+        test_args = ["pips", "install", self.package]
+        with patch.object(sys, 'argv', test_args):
+            Pips()
+
+        test_args = ["pips", "uninstall", self.package]
+        with patch.object(sys, 'argv', test_args):
+            Pips()
+
+        self.assertFalse(os.path.exists(self.path_to_site_packages + self.package.lower()))
+        self.assertFalse(os.path.exists(self.path_to_site_packages + self.sub_dependency.lower()))
+
+    def test_uninstall_package_without_de_install_subdep(self):
+        """ Tests if a sub-dependency will not be uninstalled if it is a sub dep of another package """
         # install markupsafe and flask
         #
         test_args = ["pips", "install", self.package]
@@ -87,7 +101,7 @@ class PipsTest(unittest.TestCase):
             Pips()
 
         self.assertFalse(os.path.exists(self.path_to_site_packages + self.package.lower()))
-        self.assertFalse(os.path.exists(self.path_to_site_packages + self.sub_dependency.lower()))
+        self.assertTrue(os.path.exists(self.path_to_site_packages + self.sub_dependency.lower()))
 
     def tearDown(self) -> None:
         print("teardown")
